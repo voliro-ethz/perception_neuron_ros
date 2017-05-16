@@ -19,7 +19,7 @@ class NeuronBroadcaster
 public:
     NeuronBroadcaster(ros::NodeHandle & nh)
         :nh_(nh)
-    {        
+    {
 
          link_children_names_=std::vector<std::string>{"HipsPosition","Hips","RightUpLeg","RightLeg","RightFoot",
                                                      "LeftUpLeg","LeftLeg","LeftFoot","Spine","Spine1","Spine2","Spine3","Neck","Head",
@@ -40,13 +40,11 @@ public:
         link_parents_names_=std::vector<std::string>{"WorldPerceptionNeuron","HipsPosition","Hips","RightUpLeg","RightLeg",
                                                      "Hips","LeftUpLeg","LeftLeg","Hips","Spine","Spine1","Spine2","Spine3","Neck",
                                                      "Spine3","RightShoulder","RightArm","RightForeArm",
-                                                     "RightHand","RightHandThumb1","RightHandThumb2",
-                                                     "RightHand","RightInHandIndex","RightHandIndex1","RightHandIndex2",
+                                                     "RightHand","RightHandThumb1","RightHandThumb2","RightHand","RightInHandIndex","RightHandIndex1","RightHandIndex2",
                                                      "RightHand","RightInHandMiddle","RightHandMiddle1","RightHandMiddle2",
                                                      "RightHand","RightInHandRing","RightHandRing1","RightHandRing2",
                                                      "RightHand","RightInHandPinky","RightHandPinky1","RightHandPinky2",
-                                                     "Spine3","LeftShoulder","LeftArm","LeftForeArm",
-                                                     "LeftHand","LeftHandThumb1","LeftHandThumb2",
+                                                     "Spine3","LeftShoulder","LeftArm","LeftForeArm","LeftHand","LeftHandThumb1","LeftHandThumb2",
                                                      "LeftHand","LeftInHandIndex","LeftHandIndex1","LeftHandIndex2",
                                                      "LeftHand","LeftInHandMiddle","LeftHandMiddle1","LeftHandMiddle2",
                                                      "LeftHand","LeftInHandRing","LeftHandRing1","LeftHandRing2",
@@ -103,36 +101,67 @@ private:
 
     void callback_i(const std_msgs::Float64MultiArrayConstPtr & bone_data, int i){
 
-        uint startIdx=0;
-        uint link_index=0;
+      uint startIdx=0;
+      uint link_index=0;
 
-        for(uint j=0; j < bone_data->data.size()/6; j++){
+      if (i = 0){
+        for (uint j=14; j < bone_data->data.size()/6; j++){
 
-            startIdx=j*6;
+                      startIdx=j*6;
 
-            tf::Transform pose;
-            float eulerY,eulerX,eulerZ;
-            tf::Quaternion rotation;
-            tf::Vector3 position;
+                      tf::Transform pose;
+                      float eulerY,eulerX,eulerZ;
+                      tf::Quaternion rotation;
+                      tf::Vector3 position;
 
-            position.setX(0.01*bone_data->data[startIdx]); //conversion to meters
-            position.setY(0.01*bone_data->data[startIdx+1]);
-            position.setZ(0.01*bone_data->data[startIdx+2]);
+                      position.setX(0.01*bone_data->data[startIdx]); //conversion to meters
+                      position.setY(0.01*bone_data->data[startIdx+1]);
+                      position.setZ(0.01*bone_data->data[startIdx+2]);
 
-            eulerY=bone_data->data[startIdx+3];
-            eulerX=bone_data->data[startIdx+4];
-            eulerZ=bone_data->data[startIdx+5];
+                      eulerY=bone_data->data[startIdx+3];
+                      eulerX=bone_data->data[startIdx+4];
+                      eulerZ=bone_data->data[startIdx+5];
 
-            eulerToQuaternion(eulerY,eulerX,eulerZ,rotation);
+                      eulerToQuaternion(eulerY,eulerX,eulerZ,rotation);
 
-            pose.setOrigin(position);
-            pose.setRotation(rotation);
+                      pose.setOrigin(position);
+                      pose.setRotation(rotation);
 
-            link_index=j + i*20;
+                      link_index=j + i*20;
 
-            tf_broadcaster_.sendTransform(tf::StampedTransform(pose, ros::Time::now(), link_parents_names_.at(link_index), link_children_names_.at(link_index)));
+                      tf_broadcaster_.sendTransform(tf::StampedTransform(pose, ros::Time::now(), link_parents_names_.at(link_index), link_children_names_.at(link_index)));
 
-        }
+                  }
+      }else if (i = 1){
+        for (uint j=0; j < 17; j++){
+
+                      startIdx=j*6;
+
+                      tf::Transform pose;
+                      float eulerY,eulerX,eulerZ;
+                      tf::Quaternion rotation;
+                      tf::Vector3 position;
+
+                      position.setX(0.01*bone_data->data[startIdx]); //conversion to meters
+                      position.setY(0.01*bone_data->data[startIdx+1]);
+                      position.setZ(0.01*bone_data->data[startIdx+2]);
+
+                      eulerY=bone_data->data[startIdx+3];
+                      eulerX=bone_data->data[startIdx+4];
+                      eulerZ=bone_data->data[startIdx+5];
+
+                      eulerToQuaternion(eulerY,eulerX,eulerZ,rotation);
+
+                      pose.setOrigin(position);
+                      pose.setRotation(rotation);
+
+                      link_index=j + i*20;
+
+                      tf_broadcaster_.sendTransform(tf::StampedTransform(pose, ros::Time::now(), link_parents_names_.at(link_index), link_children_names_.at(link_index)));
+
+                  }
+      }
+
     }
 
 };
