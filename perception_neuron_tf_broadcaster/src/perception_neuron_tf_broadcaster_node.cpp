@@ -52,10 +52,9 @@ public:
                                                     };
 
         std::vector<std::string> topic_names={"/perception_neuron/data_1",
-                                              "/perception_neuron/data_2",
-                                              "/perception_neuron/data_3"};
+                                              "/perception_neuron/data_2"};
 
-        subscribers_.resize(3);
+        subscribers_.resize(2);
 
         for(int i=0; i <subscribers_.size(); i++){
             subscribers_.at(i)=nh_.subscribe<std_msgs::Float64MultiArray>(topic_names.at(i), 5, boost::bind(&NeuronBroadcaster::callback_i,this, _1,i));
@@ -170,7 +169,7 @@ int main(int argc, char** argv){
 
     ros::init( argc, argv, "perception_neuron_tf_broadcaster_node", ros::init_options::AnonymousName );
 
-    ros::AsyncSpinner spinner(3);
+    ros::AsyncSpinner spinner(3);       //maybe this has to change to 2?
     spinner.start();
     ros::NodeHandle nh;
     NeuronBroadcaster neuronBroadcaster(nh);
